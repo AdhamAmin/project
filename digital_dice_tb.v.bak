@@ -1,0 +1,58 @@
+module digital_dice_tb;
+    // Inputs
+    reg clk;
+    reg rst_n;
+    reg roll;
+
+    // Outputs
+    wire [2:0] dice;
+    wire [6:0] seg;
+
+    // Instantiate the Unit Under Test (UUT)
+    digital_dice uut (
+        .clk(clk),
+        .rst_n(rst_n),
+        .roll(roll),
+        .dice(dice),
+        .seg(seg)
+    );
+
+    // Clock generation
+    initial begin
+        clk = 0;
+        forever #5 clk = ~clk; // 100MHz clock cycle
+    end
+
+    initial begin
+        // Initialize Inputs
+        rst_n = 0;
+        roll = 0;
+
+        // Reset the system
+        #20 rst_n = 1;
+        $display("Reset released. Initial dice: %d, seg: %b", dice, seg);
+
+        // Start rolling
+        #20 roll = 1;
+        $display("Rolling started...");
+        
+        // Let it cycle for several periods
+        #100 roll = 0;
+        $display("Stopped rolling. Dice value: %d, seg: %b", dice, seg);
+        
+        #20;
+        
+        // Roll again to get a different result
+        roll = 1;
+        #55 roll = 0;
+        $display("Stopped rolling. Dice value: %d, seg: %b", dice, seg);
+
+        #50 $finish;
+    end
+
+    // Monitor changes
+    initial begin
+        $monitor("Time=%0t | rst_n=%b | roll=%b | dice=%d | seg=%b", $time, rst_n, roll, dice, seg);
+    end
+
+endmodule
